@@ -1,6 +1,9 @@
 #include <fstream>
 #include <string>
 
+#include <sys/stat.h>
+#include <cstdio>
+
 #include "ConsoleColors.h"
 #include "LogReader.h"
 #include "EntryData.h"
@@ -20,14 +23,99 @@ bool ActorHasPassedTheFilter(size_t ActorHash, std::vector<size_t> const& ActorF
     return true;
 }
 
-void Compare(FrameData const& FrameData0, FrameData const& FrameData1, FrameComparisonData& Result, std::vector<size_t> const& ActorFilter)
+void GetNodeLogFilenames(std::vector<std::string>& OutFilePathes)
 {
-    if (FrameData0.FrameNumber != FrameData1.FrameNumber)
-    {
-        int FrameNumber = std::min(FrameData0.FrameNumber, FrameData1.FrameNumber);
-        int NodeNumber = (FrameNumber == FrameData0.FrameNumber) ? 0 : 1;
+    OutFilePathes.clear();
 
-        auto const& Data = FrameData0.FrameNumber < FrameData1.FrameNumber ? FrameData0.Data : FrameData1.Data;
+    int NodeNameIndex = 0;
+    
+    char NodeName[32] = { '\0' };
+
+    while (true)
+    {
+        std::snprintf(NodeName, sizeof(NodeName), "Node_%d.log", NodeNameIndex);
+
+        struct stat buffer;
+        if (stat(NodeName, &buffer) != 0)
+        {
+            break;
+        }
+
+        OutFilePathes.push_back(NodeName);
+
+        NodeNameIndex++;
+    }
+}
+
+bool IsSameFrameCounter(std::vector<FrameData> const& FrameNodesData)
+{
+    if (FrameNodesData.size() == 1)
+    {
+        return true;
+    }
+
+    bool bSameFrameCounter = true;
+
+    for (size_t i = 1; i < FrameNodesData.size(); i++)
+    {
+        bSameFrameCounter = bSameFrameCounter && (FrameNodesData[i].FrameNumber == FrameNodesData[i - 1].FrameNumber);
+    }
+
+    return bSameFrameCounter;
+}
+
+bool IsAllLogsFinished(std::vector<LogReader> const& Logs)
+{
+    bool bAllLogsFinished = true;
+
+    for (auto const& Log : Logs)
+    {
+        bAllLogsFinished = bAllLogsFinished && Log.IsFinished();
+    }
+
+    return bAllLogsFinished;
+}
+
+bool IsAllowedToReadFromLog(FrameData const& CurrentFrameData, std::vector<FrameData> const& FrameNodesData)
+{
+    if (CurrentFrameData.FrameNumber == -1)
+    {
+        return false;
+    }
+
+    bool bAllowedToRead = true;
+
+    for (auto const& FrameData : FrameNodesData)
+    {
+        bAllowedToRead = bAllowedToRead && CurrentFrameData.FrameNumber <= FrameData.FrameNumber;
+    }
+
+    return bAllowedToRead;
+}
+
+void Compare(std::vector<FrameData> FrameData, FrameComparisonData& Result, std::vector<size_t> const& ActorFilter)
+{
+    if (FrameData.empty())
+    {
+        return;
+    }
+
+    if (!IsSameFrameCounter(FrameData))
+    {
+        // Find FrameData with minimal FrameCounter
+        int FrameNumber = FrameData[0].FrameNumber;
+        int NodeNumber = 0;
+
+        for (size_t i = 1; i < FrameData.size(); i++)
+        {
+            if (FrameData[i].FrameNumber < FrameData[i - 1].FrameNumber)
+            {
+                FrameNumber = FrameData[i].FrameNumber;
+                NodeNumber = static_cast<int>(i);
+            }
+        }
+
+        auto const& Data = FrameData[NodeNumber].Data;
 
         bool bFilterHasPassed = ActorFilter.empty();
 
@@ -67,21 +155,23 @@ void Compare(FrameData const& FrameData0, FrameData const& FrameData1, FrameComp
         return;
     }
 
-    int Frame = FrameData0.FrameNumber;
+    // TODO: Finish support for multiple nodes
+    // TODO: Find out why records from Node[1] is absend when out of sync
+    int Frame = FrameData[0].FrameNumber;
 
-    for (auto const& [ActorHash, LineDataArray] : FrameData0.Data)
+    for (auto const& [ActorHash, LineDataArray] : FrameData[0].Data)
     {
         if (!ActorHasPassedTheFilter(ActorHash, ActorFilter))
         {
             continue;
         }
 
-        if (FrameData1.Data.find(ActorHash) == FrameData1.Data.end())
+        if (FrameData[1].Data.find(ActorHash) == FrameData[1].Data.end())
         {
             std::cout << RedColor << "[Desync]" << std::endl;
             std::cout << RedColor << " -> " << WhiteColor << "Entries present only on Node[0]:" << std::endl;
 
-            for (auto const& [ActorHash, LineDataArray] : FrameData0.Data)
+            for (auto const& [ActorHash, LineDataArray] : FrameData[0].Data)
             {
                 if (!ActorHasPassedTheFilter(ActorHash, ActorFilter))
                 {
@@ -111,13 +201,14 @@ void Compare(FrameData const& FrameData0, FrameData const& FrameData1, FrameComp
             continue;
         }
 
-        auto const& FoundIterator = FrameData1.Data.find(ActorHash);
+        auto const& FoundIterator = FrameData[1].Data.find(ActorHash);
         auto const& LineDataArrayNode1 = FoundIterator->second;
 
         if (LineDataArray.size() != LineDataArrayNode1.size())
         {
             std::string const& ActorName = LineDataArray[0].GetActorName();
             std::string const& ActorInfo = LineDataArray[0].GetInfo();
+
             int LineNumber = LineDataArray[0].GetLineNumber();
 
             std::cout << RedColor << "[Desync]" << std::endl;
@@ -139,6 +230,7 @@ void Compare(FrameData const& FrameData0, FrameData const& FrameData1, FrameComp
             }
 
             std::cout << RedColor << "  -> " << WhiteColor << "Entries for Node[1]:" << std::endl;
+
             for (size_t i = 0; i < LineDataArrayNode1.size(); i++)
             {
                 std::string const& ActorName = LineDataArrayNode1[i].GetActorName();
@@ -190,58 +282,81 @@ void Compare(FrameData const& FrameData0, FrameData const& FrameData1, FrameComp
 
 int main()
 {
-    std::string Node0 = "Node_0.log";
-    std::string Node1 = "Node_1.log";
+    std::vector<std::string> NodeFilenames;
+    GetNodeLogFilenames(NodeFilenames);
 
-    std::cout << WhiteColor << "\nStart parsing \n" << Node0 << std::endl << Node1 << "\n...\n";
-
-    LogReader LogNode0;
-    LogReader LogNode1;
-
-    if (!LogNode0.Open(Node0) || !LogNode1.Open(Node1))
+    if (NodeFilenames.empty())
     {
-        std::cout << "\nCan't open log files \n";
+        std::cout << RedColor << "[Error] Can't find any log files" << std::endl;
         std::cin.ignore();
 
         return -1;
     }
 
+    size_t NumNodes = NodeFilenames.size();
+
+    std::vector<LogReader> LogReaders(NumNodes);
+
+    for (size_t i = 0; i < NumNodes; i++)
+    {
+        if (!LogReaders[i].Open(NodeFilenames[i]))
+        {
+            std::cout << RedColor << "[Error] Can't open log file: " << NodeFilenames[i] << std::endl;
+            std::cin.ignore();
+
+            return -1;
+        }
+    }
+
+    std::cout << WhiteColor << "\nStart parsing \n";
+    for (size_t i = 0; i < NumNodes; i++)
+    {
+        std::cout << NodeFilenames[i] << std::endl;
+    }
+
+    std::cout << std::endl << std::endl;
+
     int FrameCounter = 0;
 
     FrameComparisonData TotalResult;
 
-    FrameData FrameDataNode0;
-    FrameData FrameDataNode1;
+    std::vector<FrameData> FrameData(NumNodes);
 
     std::vector<size_t> ActorFilter = 
     {
-        std::hash<std::string>{}("BP_FloorCracks_Wall_C_5")
+        std::hash<std::string>{}("BP_Mob_Minion_Stuart_Child_C_19")
     };
 
-    while (!LogNode0.IsFinished() && !LogNode1.IsFinished())
+    while (!IsAllLogsFinished(LogReaders))
     {
-        bool bReadFrameFromNode0 = FrameDataNode0.FrameNumber <= FrameDataNode1.FrameNumber;
-        bool bReadFrameFromNode1 = FrameDataNode1.FrameNumber <= FrameDataNode0.FrameNumber;
+        size_t ReadFromLogCounter = 0;
 
-        if (bReadFrameFromNode0)
+        for (size_t i = 0; i < NumNodes; i++)
         {
-            LogNode0.ReadNextFrame(FrameDataNode0, FrameCounter);
+            // FIX: Increment only with minimal FrameCounter
+            if (IsAllowedToReadFromLog(FrameData[i], FrameData))
+            {
+                if (LogReaders[i].ReadNextFrame(FrameData[i], FrameCounter))
+                {
+                    ReadFromLogCounter++;
+                }
+            }
         }
 
-        if (bReadFrameFromNode1)
+        if (ReadFromLogCounter == 0)
         {
-            LogNode1.ReadNextFrame(FrameDataNode1, FrameCounter);
+            break;
         }
-        
-        bool bIncrementFrameCounter = bReadFrameFromNode0 && bReadFrameFromNode1;
-        bIncrementFrameCounter = bIncrementFrameCounter && (FrameDataNode1.FrameNumber == FrameDataNode0.FrameNumber);
+
+        bool bIncrementFrameCounter = ReadFromLogCounter == NumNodes;
+        bIncrementFrameCounter = bIncrementFrameCounter && IsSameFrameCounter(FrameData);
 
         FrameComparisonData Result;
-        Compare(FrameDataNode0, FrameDataNode1, Result, ActorFilter);
+        Compare(FrameData, Result, ActorFilter);
         
         TotalResult.Accumulate(Result);
 
-        FrameCounter = std::max(FrameDataNode0.FrameNumber, FrameDataNode1.FrameNumber);
+        FrameCounter = std::max(FrameData[0].FrameNumber, FrameData[1].FrameNumber);
         
         if (bIncrementFrameCounter)
         {
@@ -249,8 +364,10 @@ int main()
         }
     }
 
-    LogNode0.Close();
-    LogNode1.Close();
+    for (size_t i = 0; i < NumNodes; i++)
+    {
+        LogReaders[i].Close();
+    }
 
     TotalResult.Print();
 

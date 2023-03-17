@@ -49,9 +49,9 @@ public:
     bool Open(std::string const& FileName);
     void Close();  
 
-    bool inline IsEndOfFile() { return FileStream.eof(); }
-    bool inline IsOpen() { return FileStream.is_open(); }
-    bool inline IsFinished() { return bFrameOverflow || !FileStream.is_open() || FileStream.eof(); }
+    bool IsEndOfFile() const { return FileStream.eof(); }
+    bool IsOpen() const { return FileStream.is_open(); }
+    bool IsFinished() const { return bFrameOverflow || !FileStream.is_open() || FileStream.eof(); }
 
 protected:
     bool ReadNextLine(EntryData& Data, int& OutFrame);

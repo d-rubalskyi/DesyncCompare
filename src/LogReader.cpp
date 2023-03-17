@@ -8,7 +8,6 @@ bool LogReader::Open(std::string const& FileName)
 
     if (!FileStream.is_open())
     {
-        std::cout << "Can't open file " << FileName << std::endl;
         return false;
     }
 
@@ -42,12 +41,17 @@ int GetFrameNumber(int FrameNumber, int FrameCounter)
     static const int FrameOverflow = 1000;
 
     // Account overflow
-    int k = int(FrameCounter / FrameOverflow) * FrameOverflow;
+    int k = int(FrameCounter / (FrameOverflow - 1)) * FrameOverflow;
     return k + FrameNumber;
 }
 
 bool LogReader::ReadNextFrame(FrameData& FrameData, int FrameCounter)
 {
+    if (IsFinished())
+    {
+        return false;
+    }
+
     FrameData.FrameNumber = -1;
     FrameData.Data.clear();
 
@@ -105,7 +109,7 @@ bool LogReader::ReadNextFrame(FrameData& FrameData, int FrameCounter)
         }
     }
 
-    return true;
+    return (FrameData.FrameNumber != -1);
 }
 
 void LogReader::Close()
