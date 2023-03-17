@@ -1,16 +1,16 @@
 # DisplayClusterLogCompare
 
-Utility to compare UnrealEngine log files.
+Standalone utility to compare UnrealEngine log files.
 
-Useful to:
-- Compare log entries across Cluster Nodes
-- Highlight out of sync log entries
-- Filter log entries by Actor name
+Useful for:
+- Comparing log entries across Cluster Nodes
+- Highlighting out of sync log entries
+- Filtering log entries by Actor name
 
-Log entry must have following format
+Log entry must have the following format:
 
 ```
-(EntryMark) Actor: ActorName, Info: EntryInfo
+(EntryMark) Actor: ActorName, EntryInfo
 ```
 
 Currently EntryMark = "(DataIntegrityTest)"
