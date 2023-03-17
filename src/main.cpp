@@ -2,15 +2,8 @@
 #include <string>
 
 #include "ConsoleColors.h"
-
 #include "LogReader.h"
 #include "EntryData.h"
-
-struct EntryFilter
-{
-    std::vector<size_t> ActorFilter;
-    std::vector<const char*> CategoryFilter;
-};
 
 bool ActorHasPassedTheFilter(size_t ActorHash, std::vector<size_t> const& ActorFilter)
 {
@@ -222,7 +215,7 @@ int main()
 
     std::vector<size_t> ActorFilter = 
     {
-        std::hash<std::string>{}("BP_Boss_Stronghold_C_1")
+        std::hash<std::string>{}("BP_FloorCracks_Wall_C_5")
     };
 
     while (!LogNode0.IsFinished() && !LogNode1.IsFinished())
@@ -246,7 +239,7 @@ int main()
         FrameComparisonData Result;
         Compare(FrameDataNode0, FrameDataNode1, Result, ActorFilter);
         
-        TotalResult.Accumulate(Result, FrameCounter);
+        TotalResult.Accumulate(Result);
 
         FrameCounter = std::max(FrameDataNode0.FrameNumber, FrameDataNode1.FrameNumber);
         

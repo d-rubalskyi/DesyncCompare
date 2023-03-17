@@ -18,7 +18,7 @@ struct FrameComparisonData
     size_t AbsentEntriesCount = 0;
 
     void Print();
-    void Accumulate(FrameComparisonData const& Data, const int Frame);
+    void Accumulate(FrameComparisonData const& Data);
 };
 
 struct FrameData

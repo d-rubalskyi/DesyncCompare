@@ -135,7 +135,7 @@ void FrameComparisonData::Print()
     cout << "   Absent Entries: " << AbsentEntriesCount << endl;
 }
 
-void FrameComparisonData::Accumulate(FrameComparisonData const& Data, const int Frame)
+void FrameComparisonData::Accumulate(FrameComparisonData const& Data)
 {
     TotalEntriesCount += Data.TotalEntriesCount;
     IdenticalEntriesCount += Data.IdenticalEntriesCount;
