@@ -1,6 +1,6 @@
 # DisplayClusterLogCompare
 
-Log compare utility that parses UnrealEngine logs.
+Utility to compare UnrealEngine log files.
 
 Useful to:
 - Compare log entries across Cluster Nodes
