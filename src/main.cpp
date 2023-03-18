@@ -93,7 +93,30 @@ bool IsAllowedToReadFromLog(FrameData const& CurrentFrameData, std::vector<Frame
     return bAllowedToRead;
 }
 
-void Compare(std::vector<FrameData> FrameData, FrameComparisonData& Result, std::vector<size_t> const& ActorFilter)
+// Find FrameData with minimal FrameCounter
+int FindMinFrameCounterNodeIdx(std::vector<FrameData> const& FrameData)
+{
+    if (FrameData.empty())
+    {
+        return -1;
+    }
+
+    int FrameNumber = FrameData[0].FrameNumber;
+    int NodeNumber = 0;
+
+    for (size_t i = 1; i < FrameData.size(); i++)
+    {
+        if (FrameData[i].FrameNumber < FrameData[i - 1].FrameNumber)
+        {
+            FrameNumber = FrameData[i].FrameNumber;
+            NodeNumber = static_cast<int>(i);
+        }
+    }
+
+    return NodeNumber;
+}
+
+void Compare(std::vector<FrameData> const& FrameData, FrameComparisonData& Result, std::vector<size_t> const& ActorFilter)
 {
     if (FrameData.empty())
     {
@@ -102,19 +125,9 @@ void Compare(std::vector<FrameData> FrameData, FrameComparisonData& Result, std:
 
     if (!IsSameFrameCounter(FrameData))
     {
-        // Find FrameData with minimal FrameCounter
-        int FrameNumber = FrameData[0].FrameNumber;
-        int NodeNumber = 0;
-
-        for (size_t i = 1; i < FrameData.size(); i++)
-        {
-            if (FrameData[i].FrameNumber < FrameData[i - 1].FrameNumber)
-            {
-                FrameNumber = FrameData[i].FrameNumber;
-                NodeNumber = static_cast<int>(i);
-            }
-        }
-
+        int NodeNumber = FindMinFrameCounterNodeIdx(FrameData);
+        
+        int FrameNumber = FrameData[NodeNumber].FrameNumber;
         auto const& Data = FrameData[NodeNumber].Data;
 
         bool bFilterHasPassed = ActorFilter.empty();
@@ -156,7 +169,6 @@ void Compare(std::vector<FrameData> FrameData, FrameComparisonData& Result, std:
     }
 
     // TODO: Finish support for multiple nodes
-    // TODO: Find out why records from Node[1] is absend when out of sync
     int Frame = FrameData[0].FrameNumber;
 
     for (auto const& [ActorHash, LineDataArray] : FrameData[0].Data)
@@ -331,15 +343,23 @@ int main()
     {
         size_t ReadFromLogCounter = 0;
 
-        for (size_t i = 0; i < NumNodes; i++)
+        if (IsSameFrameCounter(FrameData))
         {
-            // FIX: Increment only with minimal FrameCounter
-            if (IsAllowedToReadFromLog(FrameData[i], FrameData))
+            for (size_t i = 0; i < NumNodes; i++)
             {
                 if (LogReaders[i].ReadNextFrame(FrameData[i], FrameCounter))
                 {
                     ReadFromLogCounter++;
                 }
+            }
+        }
+        else
+        {
+            int NodeNumber = FindMinFrameCounterNodeIdx(FrameData);
+
+            if (LogReaders[NodeNumber].ReadNextFrame(FrameData[NodeNumber], FrameCounter))
+            {
+                ReadFromLogCounter++;
             }
         }
 
