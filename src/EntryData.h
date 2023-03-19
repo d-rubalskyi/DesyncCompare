@@ -38,7 +38,7 @@ protected:
     std::string ActorName;
     std::string Info;
 
-    // TODO: Optimize to Enum
+    // TODO: Optimize to Enum?
     char LogCategory[32] = {'\0'};
 
     int LineNumber;

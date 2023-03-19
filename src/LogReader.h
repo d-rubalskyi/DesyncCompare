@@ -4,11 +4,11 @@
 #include <fstream>
 
 #include <unordered_map>
+#include <map>
+
 #include <vector>
 
 #include "EntryData.h"
-
-using namespace std;
 
 struct FrameComparisonData
 {
@@ -33,15 +33,14 @@ class LogReader
 {
 protected:
     std::ifstream FileStream;
-    
+    std::string Line;
+
     EntryData PreviousEntryData;
     int LastFrameNumber = -1;
-
-    std::string Line;
-    int LineNumber = 0;
+    
+    int LineNumber = 1;
 
     bool bAddPreviousEntryData = false;
-    bool bFrameOverflow = false;
 
 public:
     bool ReadNextFrame(FrameData& OutFrameData, int FrameCounter);
@@ -51,7 +50,7 @@ public:
 
     bool IsEndOfFile() const { return FileStream.eof(); }
     bool IsOpen() const { return FileStream.is_open(); }
-    bool IsFinished() const { return bFrameOverflow || !FileStream.is_open() || FileStream.eof(); }
+    bool IsFinished() const { return !FileStream.is_open() || FileStream.eof(); }
 
 protected:
     bool ReadNextLine(EntryData& Data, int& OutFrame);

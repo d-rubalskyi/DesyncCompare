@@ -8,6 +8,8 @@ add_executable(LogCompare main.cpp
     main.cpp 
     EntryData.cpp
     EntryData.h
+    Cluster.cpp
+    Cluster.h
     LogReader.cpp
     LogReader.h
     ConsoleColors.h
