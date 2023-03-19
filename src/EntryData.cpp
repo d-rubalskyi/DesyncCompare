@@ -13,7 +13,7 @@ bool EntryData::ParseLine(std::string const& FileLine, int& OutFrame)
     short Second = -1;
     short NanoSecond = -1;
 
-    sscanf_s(FileLine.c_str(), "[%hu.%hu.%hu-%hu.%hu.%hu:%hu][ %d]Log%s",
+    std::sscanf(FileLine.c_str(), "[%hu.%hu.%hu-%hu.%hu.%hu:%hu][ %d]Log%s",
         &Year, &Month, &Day, &Hour, &Minute, &Second, &NanoSecond, &OutFrame, &LogCategory, (int)sizeof(LogCategory));
 
     // Kill ':' symbol

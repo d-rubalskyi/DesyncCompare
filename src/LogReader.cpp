@@ -15,7 +15,7 @@ bool LogReader::Open(std::string const& FileName)
 }
 
 bool LogReader::ReadNextLine(EntryData& Data, int& OutFrame)
-{    
+{
     getline(FileStream, Line);
     
     LineNumber++;
@@ -41,7 +41,7 @@ int GetFrameNumber(int FrameNumber, int FrameCounter)
     static const int FrameOverflow = 1000;
 
     // Account overflow
-    int k = int(FrameCounter / (FrameOverflow - 1)) * FrameOverflow;
+    int k = int(FrameCounter / FrameOverflow) * FrameOverflow;
     return k + FrameNumber;
 }
 
@@ -126,17 +126,17 @@ void FrameComparisonData::Print()
 
     if (TotalEntriesCount == IdenticalEntriesCount)
     {
-        cout << GreenColor << "OK" << WhiteColor;
+        std::cout << GreenColor << "OK" << WhiteColor;
     }
     else
     {
-        cout << RedColor << "FAILED" << WhiteColor << std::endl;
+        std::cout << RedColor << "FAILED" << WhiteColor << std::endl;
     }
 
-    cout << "   Total Entries: " << TotalEntriesCount << std::endl;
-    cout << "   Identical Entries: " << IdenticalEntriesCount << endl;
-    cout << "   Different Entries: " << DifferentEntriesCount << endl;
-    cout << "   Absent Entries: " << AbsentEntriesCount << endl;
+    std::cout << "   Total Entries: " << TotalEntriesCount << std::endl;
+    std::cout << "   Identical Entries: " << IdenticalEntriesCount << std::endl;
+    std::cout << "   Different Entries: " << DifferentEntriesCount << std::endl;
+    std::cout << "   Absent Entries: " << AbsentEntriesCount << std::endl;
 }
 
 void FrameComparisonData::Accumulate(FrameComparisonData const& Data)
