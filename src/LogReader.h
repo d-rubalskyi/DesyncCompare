@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <sstream>
+
 #include <fstream>
 
 #include <unordered_map>
@@ -9,17 +11,6 @@
 #include <vector>
 
 #include "EntryData.h"
-
-struct FrameComparisonData
-{
-    size_t TotalEntriesCount = 0;
-    size_t IdenticalEntriesCount = 0;
-    size_t DifferentEntriesCount = 0;
-    size_t AbsentEntriesCount = 0;
-
-    void Print();
-    void Accumulate(FrameComparisonData const& Data);
-};
 
 struct FrameData
 {
@@ -36,8 +27,8 @@ protected:
     std::string Line;
 
     EntryData PreviousEntryData;
+
     int LastFrameNumber = -1;
-    
     int LineNumber = 1;
 
     bool bAddPreviousEntryData = false;

@@ -5,6 +5,7 @@
 #include <set>
 
 #include "LogReader.h"
+#include "ComparisonResult.h"
 
 struct NodeData
 {
@@ -17,11 +18,15 @@ struct NodeData
 class Cluster
 {
 public:
-    bool ExtractNodeData();
-    bool CompareNodeData(FrameComparisonData& TotalResult);
+    bool LoadNodeData();
+    bool CompareNodeData(ComparisonResult& TotalResult);
 
 protected:
     void InsertFrameDataIntoCluster(NodeData& InNodeData, FrameData const& InFrameData);
+    void Compare(std::vector<FrameData> const& FrameData, ComparisonResult& Result, std::vector<size_t> const& ActorFilter);
+    void ProcessDesyncFrameData(std::vector<FrameData> const& InFrameData,
+        std::vector<size_t> const& NodeIndices,
+        std::vector<size_t> const& ActorFilter, ComparisonResult& Result);
 
 protected:
     std::vector<NodeData> ClusterData;

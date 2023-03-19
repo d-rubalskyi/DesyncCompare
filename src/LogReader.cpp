@@ -119,30 +119,3 @@ void LogReader::Close()
         FileStream.close();
     }
 }
-
-void FrameComparisonData::Print()
-{
-    std::cout << std::endl << "Final Results: ";
-
-    if (TotalEntriesCount == IdenticalEntriesCount)
-    {
-        std::cout << GreenColor << "OK" << WhiteColor;
-    }
-    else
-    {
-        std::cout << RedColor << "FAILED" << WhiteColor << std::endl;
-    }
-
-    std::cout << "   Total Entries: " << TotalEntriesCount << std::endl;
-    std::cout << "   Identical Entries: " << IdenticalEntriesCount << std::endl;
-    std::cout << "   Different Entries: " << DifferentEntriesCount << std::endl;
-    std::cout << "   Absent Entries: " << AbsentEntriesCount << std::endl;
-}
-
-void FrameComparisonData::Accumulate(FrameComparisonData const& Data)
-{
-    TotalEntriesCount += Data.TotalEntriesCount;
-    IdenticalEntriesCount += Data.IdenticalEntriesCount;
-    DifferentEntriesCount += Data.DifferentEntriesCount;
-    AbsentEntriesCount += Data.AbsentEntriesCount;
-}
