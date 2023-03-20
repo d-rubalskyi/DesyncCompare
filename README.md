@@ -1,4 +1,4 @@
-# DisplayClusterLogCompare
+# DesyncCompare
 
 Standalone utility to compare UnrealEngine log files.
 
