@@ -346,7 +346,7 @@ bool Cluster::LoadNodeData()
 
     if (NodeFileNames.empty())
     {
-        std::cout << RedColor << "[Error] Can't find any log files" << std::endl;
+        std::cout << RedColor << "[Error] Can't find any log files" << WhiteColor << std::endl;
         return false;
     }
 
@@ -358,7 +358,7 @@ bool Cluster::LoadNodeData()
     {
         if (!LogReaders[i].Open(NodeFileNames[i]))
         {
-            std::cout << RedColor << "[Error] Can't open log file: " << NodeFileNames[i] << std::endl;
+            std::cout << RedColor << "[Error] Can't open log file: " << NodeFileNames[i] << WhiteColor << std::endl;
             std::cin.ignore();
 
             return false;

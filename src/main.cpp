@@ -14,13 +14,13 @@ int main()
 
     std::cin.ignore();
 
-    std::vector<MsgEntry> FilteredMsgs;
+    std::vector<MsgEntry> OutFilteredMsgs;
 
     //Results.FilterByEntryName("EntryName", FilteredMsgs);
-    Results.FilterByMsgType(MsgType::Desync, FilteredMsgs);
+    Results.FilterByMsgType(MsgType::Desync, OutFilteredMsgs);
 
     std::cout << "Filtered entities:" << std::endl;
-    for (auto const& Msg : FilteredMsgs)
+    for (auto const& Msg : OutFilteredMsgs)
     {
         std::cout << Msg.Msg;
     }
