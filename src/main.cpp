@@ -12,17 +12,23 @@ int main()
 
     Results.Print();
 
-    std::cin.ignore();
-
-    std::vector<MsgEntry> OutFilteredMsgs;
-
+    std::vector<MsgEntry> OutDesyncMsgs;
+    std::vector<MsgEntry> OutUniqueDesyncMsgs;
+    
     //Results.FilterByEntryName("EntryName", FilteredMsgs);
-    Results.FilterByMsgType(MsgType::Desync, OutFilteredMsgs);
 
-    std::cout << "Filtered entities:" << std::endl;
-    for (auto const& Msg : OutFilteredMsgs)
+    Results.FilterByMsgType(MsgType::Desync, OutDesyncMsgs);
+    Results.FilterUniqueMsgs(OutDesyncMsgs, OutUniqueDesyncMsgs);
+
+    std::cout << std::endl << "Unique " << RedColor << "[Desync]" 
+        << WhiteColor << " entries:" << std::endl;
+
+    for (auto const& Msg : OutUniqueDesyncMsgs)
     {
-        std::cout << Msg.Msg;
+        std::cout << RedColor << "  [Desync]"
+            << YellowColor << "Frame[" << Msg.FrameIdx << "]"
+            << WhiteColor << " Actor: " << Msg.EntryName
+            << ", Info: " << Msg.EntryInfo << std::endl;
     }
 
     std::cout << std::endl << "Press Enter..." << std::endl;
