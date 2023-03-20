@@ -2,8 +2,8 @@
 
 bool EntryData::ParseLine(std::string const& FileLine, int& OutFrame)
 {
-    static std::string EntryNameMarker = "Actor: ";
-    static std::string TypeNameMarker = "Type: ";
+    static std::string EntryNameMarker = "EntryName: ";
+    static std::string TypeNameMarker = "EntryType: ";
 
     short Year = -1;
     short Month = -1;
