@@ -10,7 +10,7 @@ Useful for:
 Log entry must have the following format:
 
 ```
-(EntryMark) Actor: ActorName, EntryInfo
+(EntryMark) Actor: ActorName, Type: CategoryType, EntryInfo
 ```
 
 Currently EntryMark = "(DataIntegrityTest)"
