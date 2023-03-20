@@ -46,7 +46,7 @@ void ComparisonResult::FilterByMsgType(MsgType Type, std::vector<MsgEntry>& OutF
     }
 }
 
-void ComparisonResult::FilterUniqueMsgs(std::vector<MsgEntry> InMsgs, std::vector<MsgEntry>& OutMsgs)
+void ComparisonResult::FilterUniqueMsgs(std::vector<MsgEntry> const& InMsgs, std::vector<MsgEntry>& OutMsgs)
 {
     // Key - Entry Name, Value - Unique messages for Entry
     std::map<std::string, std::set<std::string>> UniqueStrings;

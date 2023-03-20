@@ -33,7 +33,7 @@ public:
 
     void FilterByEntryName(std::string const& EntryName, std::vector<MsgEntry>& OutFilteredMsgs);
     void FilterByMsgType(MsgType Type, std::vector<MsgEntry>& OutFilteredMsgs);
-    void FilterUniqueMsgs(std::vector<MsgEntry> InMsgs, std::vector<MsgEntry>& OutMsgs);
+    void FilterUniqueMsgs(std::vector<MsgEntry> const& InMsgs, std::vector<MsgEntry>& OutMsgs);
 
 protected:
     size_t TotalEntriesCount = 0;

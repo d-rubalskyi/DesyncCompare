@@ -27,6 +27,7 @@ int main()
     {
         std::cout << RedColor << "  [Desync]"
             << YellowColor << "Frame[" << Msg.FrameIdx << "]"
+            << WhiteColor << "Ln[" << Msg.LineIdx << "]"
             << WhiteColor << " Actor: " << Msg.EntryName
             << ", Info: " << Msg.EntryInfo << std::endl;
     }
