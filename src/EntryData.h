@@ -13,33 +13,31 @@ public:
 
     bool ParseLine(std::string const& FileLine, int& OutFrame);
     
-    std::string const& GetActorName() const { return ActorName; };
-    std::string const& GetInfo() const { return Info; };
+    std::string const& GetName() const { return EntryName; };
+    std::string const& GetInfo() const { return EntryInfo; };
+    std::string GetCategory() const { return EntryCategory; }
 
-    const char* GetLogCategory() const { return LogCategory; }
     int GetLineNumber() const { return LineNumber; }
 
     friend std::ostream& operator<<(std::ostream& os, EntryData const& InLineData)
     {
-        std::string const& ActorName = InLineData.GetActorName();
-        std::string const& ActorInfo = InLineData.GetInfo();
-        const char* LogCategory = InLineData.GetLogCategory();
+        std::string const& EntryName = InLineData.GetName();
+        std::string const& EntryInfo = InLineData.GetInfo();
+        std::string const& EntryCategory = InLineData.GetCategory();
 
         int LineNumber = InLineData.GetLineNumber();
 
-        os << CyanColor << "[" << LogCategory << "]"
+        os << CyanColor << "[" << EntryCategory << "]"
             << WhiteColor << ", Ln[" << LineNumber << "]"
-            << ", Actor:" << ActorName
-            << ", Info: " << ActorInfo;
+            << ", Actor:" << EntryName
+            << ", Info: " << EntryInfo;
 
         return os;
     }
 protected:
-    std::string ActorName;
-    std::string Info;
-
-    // TODO: Optimize to Enum?
-    char LogCategory[32] = {'\0'};
+    std::string EntryName;
+    std::string EntryInfo;
+    std::string EntryCategory;
 
     int LineNumber;
 };

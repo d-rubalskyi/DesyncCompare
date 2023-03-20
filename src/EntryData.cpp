@@ -2,8 +2,9 @@
 
 bool EntryData::ParseLine(std::string const& FileLine, int& OutFrame)
 {
-    static std::string ActorNameMarker = "Actor: ";
-  
+    static std::string EntryNameMarker = "Actor: ";
+    static std::string TypeNameMarker = "Type: ";
+
     short Year = -1;
     short Month = -1;
     short Day = -1;
@@ -13,28 +14,26 @@ bool EntryData::ParseLine(std::string const& FileLine, int& OutFrame)
     short Second = -1;
     short NanoSecond = -1;
 
-    std::sscanf(FileLine.c_str(), "[%hu.%hu.%hu-%hu.%hu.%hu:%hu][ %d]Log%s",
-        &Year, &Month, &Day, &Hour, &Minute, &Second, &NanoSecond, &OutFrame, &LogCategory, (int)sizeof(LogCategory));
+    std::sscanf(FileLine.c_str(), "[%hu.%hu.%hu-%hu.%hu.%hu:%hu][ %d]",
+        &Year, &Month, &Day, &Hour, &Minute, &Second, &NanoSecond, &OutFrame);
 
-    // Kill ':' symbol
-    size_t LogCategoryLen = strlen(LogCategory);
+    size_t StrEntryNameIndex = FileLine.find(EntryNameMarker);
+    size_t StrStartEntryNameIndex = StrEntryNameIndex + EntryNameMarker.size();
+    size_t StrEndEntryNameIndex = FileLine.find(",", StrStartEntryNameIndex);
 
-    if (LogCategoryLen > 0)
-    {
-        LogCategory[strlen(LogCategory) - 1] = '\0';
-    }
+    size_t StrTypeIndex = FileLine.find(TypeNameMarker);
+    size_t StrStartTypeIndex = StrTypeIndex + TypeNameMarker.size();
+    size_t StrEndTypeIndex = FileLine.find(",", StrStartTypeIndex);
 
-    size_t StrActorNameIndex = FileLine.find(ActorNameMarker);
-    size_t StrStartActorNameIndex = StrActorNameIndex + ActorNameMarker.size();
-    size_t StrEndActorNameIndex = FileLine.find(",", StrStartActorNameIndex);
-
-    if (StrStartActorNameIndex == -1 || StrEndActorNameIndex == -1)
+    if ((StrStartEntryNameIndex == -1 || StrEndEntryNameIndex == -1) || 
+        (StrStartTypeIndex == -1 || StrEndTypeIndex == -1))
     {
         return false;
     }
 
-    ActorName = FileLine.substr(StrStartActorNameIndex, StrEndActorNameIndex - StrStartActorNameIndex);
-    Info = FileLine.substr(StrEndActorNameIndex + 1, FileLine.size());
+    EntryName = FileLine.substr(StrStartEntryNameIndex, StrEndEntryNameIndex - StrStartEntryNameIndex);
+    EntryInfo = FileLine.substr(StrEndEntryNameIndex + 1, FileLine.size());
+    EntryCategory = FileLine.substr(StrStartTypeIndex, StrEndTypeIndex - StrStartTypeIndex);
 
     return true;
 }

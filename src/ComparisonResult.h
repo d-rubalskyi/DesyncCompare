@@ -4,6 +4,8 @@
 #include <vector>
 #include <sstream>
 
+#include "EntryData.h"
+
 enum class MsgType
 {
     Desync,
@@ -12,13 +14,9 @@ enum class MsgType
 
 struct MsgEntry
 {
-    MsgType Type;
-    
+    EntryData Entry;
     size_t FrameIdx;
-    size_t LineIdx;
-
-    std::string EntryInfo;
-    std::string EntryName;
+    MsgType Type;
 };
 
 class ComparisonResult
@@ -26,8 +24,7 @@ class ComparisonResult
     friend class Cluster;
 
 public:
-    void AddMsgEntry(size_t FrameIdx, size_t LineIdx, MsgType Type,
-            std::string const& EntryName, std::string const& EntryInfo);
+    void AddEntry(size_t FrameIdx, MsgType Type, EntryData Entry);
 
     void Print();
 

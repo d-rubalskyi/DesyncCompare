@@ -66,7 +66,7 @@ bool LogReader::ReadNextFrame(FrameData& FrameData, int FrameCounter)
             // Add LineData from previous Reads
             if (bAddPreviousEntryData)
             {
-                std::size_t ActorHash = std::hash<std::string>{}(PreviousEntryData.GetActorName());
+                std::size_t ActorHash = std::hash<std::string>{}(PreviousEntryData.GetName());
 
                 FrameData.Data[ActorHash].push_back(PreviousEntryData);
                 FrameData.FrameNumber = GetFrameNumber(LastFrameNumber, FrameCounter);
@@ -93,7 +93,7 @@ bool LogReader::ReadNextFrame(FrameData& FrameData, int FrameCounter)
             // Add to Entry to the FrameData
             if (FrameData.FrameNumber == OutFrame)
             {
-                std::size_t ActorHash = std::hash<std::string>{}(Data.GetActorName());
+                std::size_t ActorHash = std::hash<std::string>{}(Data.GetName());
                 FrameData.Data[ActorHash].push_back(Data);
             }
 

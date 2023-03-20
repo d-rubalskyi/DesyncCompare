@@ -5,11 +5,9 @@
 #include <iostream>
 #include <set>
 
-void ComparisonResult::AddMsgEntry(size_t FrameIdx, size_t LineIdx, MsgType Type,
-    std::string const& EntryName, std::string const& EntryInfo)
+void ComparisonResult::AddEntry(size_t FrameIdx, MsgType Type, EntryData InEntry)
 {
-    MsgEntry Entry = { Type, FrameIdx, LineIdx, EntryInfo, EntryName };
-
+    MsgEntry Entry = { InEntry, FrameIdx, Type };
     ComparisonMessages[FrameIdx].emplace_back(Entry);
 }
 
@@ -22,7 +20,7 @@ void ComparisonResult::FilterByEntryName(std::string const& EntryName,
     {
         for (auto const& Msg : MsgArray)
         {
-            if (Msg.EntryName == EntryName)
+            if (Msg.Entry.GetName() == EntryName)
             {
                 OutFilteredMsgs.push_back(Msg);
             }
@@ -54,11 +52,14 @@ void ComparisonResult::FilterUniqueMsgs(std::vector<MsgEntry> const& InMsgs, std
 
     for (auto const& Msg : InMsgs)
     {
-       if (UniqueStrings[Msg.EntryName].find(Msg.EntryInfo) == UniqueStrings[Msg.EntryName].end())
-       {
-           UniqueStrings[Msg.EntryName].insert(Msg.EntryInfo);
-           UniqueMsgs[Msg.EntryName].push_back(Msg);
-       }
+        auto const& EntryName = Msg.Entry.GetName();
+        auto const& EntryInfo = Msg.Entry.GetInfo();
+
+        if (UniqueStrings[EntryName].find(EntryInfo) == UniqueStrings[EntryName].end())
+        {
+            UniqueStrings[EntryName].insert(EntryInfo);
+            UniqueMsgs[EntryName].push_back(Msg);
+        }
     }
 
     OutMsgs.clear();
@@ -78,7 +79,7 @@ void ComparisonResult::Print()
 
     if (TotalEntriesCount == IdenticalEntriesCount)
     {
-        std::cout << GreenColor << "OK" << WhiteColor;
+        std::cout << GreenColor << "OK" << WhiteColor << std::endl;
     }
     else
     {

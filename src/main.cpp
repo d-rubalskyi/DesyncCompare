@@ -20,16 +20,17 @@ int main()
     Results.FilterByMsgType(MsgType::Desync, OutDesyncMsgs);
     Results.FilterUniqueMsgs(OutDesyncMsgs, OutUniqueDesyncMsgs);
 
-    std::cout << std::endl << "Unique " << RedColor << "[Desync]" 
-        << WhiteColor << " entries:" << std::endl;
-
-    for (auto const& Msg : OutUniqueDesyncMsgs)
+    if (!OutUniqueDesyncMsgs.empty()) 
     {
-        std::cout << RedColor << "  [Desync]"
-            << YellowColor << "Frame[" << Msg.FrameIdx << "]"
-            << WhiteColor << "Ln[" << Msg.LineIdx << "]"
-            << WhiteColor << " Actor: " << Msg.EntryName
-            << ", Info: " << Msg.EntryInfo << std::endl;
+        std::cout << std::endl << "Unique " << RedColor << "[Desync]"
+            << WhiteColor << " entries:" << std::endl;
+
+        for (auto const& Msg : OutUniqueDesyncMsgs)
+        {
+            std::cout << RedColor << "  [Desync]"
+                << YellowColor << "Frame[" << Msg.FrameIdx << "]"
+                << WhiteColor << Msg.Entry << std::endl;
+        }
     }
 
     std::cout << std::endl << "Press Enter..." << std::endl;
