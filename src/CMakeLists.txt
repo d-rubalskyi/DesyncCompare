@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
+project(DesyncLogCompare)
+
 set (CMAKE_CXX_STANDARD 17)
 
-project(LogCompare)
-
-add_executable(LogCompare main.cpp 
-    main.cpp 
+add_library(DesyncLogCompare STATIC
     EntryData.cpp
     EntryData.h
     Cluster.cpp

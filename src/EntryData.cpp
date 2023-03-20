@@ -14,7 +14,7 @@ bool EntryData::ParseLine(std::string const& FileLine, int& OutFrame)
     short Second = -1;
     short NanoSecond = -1;
 
-    std::sscanf(FileLine.c_str(), "[%hu.%hu.%hu-%hu.%hu.%hu:%hu][ %d]",
+    sscanf_s(FileLine.c_str(), "[%hu.%hu.%hu-%hu.%hu.%hu:%hu][ %d]",
         &Year, &Month, &Day, &Hour, &Minute, &Second, &NanoSecond, &OutFrame);
 
     size_t StrEntryNameIndex = FileLine.find(EntryNameMarker);
@@ -32,7 +32,7 @@ bool EntryData::ParseLine(std::string const& FileLine, int& OutFrame)
     }
 
     EntryName = FileLine.substr(StrStartEntryNameIndex, StrEndEntryNameIndex - StrStartEntryNameIndex);
-    EntryInfo = FileLine.substr(StrEndEntryNameIndex + 1, FileLine.size());
+    EntryInfo = FileLine.substr(StrEndTypeIndex + 1, FileLine.size());
     EntryCategory = FileLine.substr(StrStartTypeIndex, StrEndTypeIndex - StrStartTypeIndex);
 
     return true;
