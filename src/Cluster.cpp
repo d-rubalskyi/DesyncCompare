@@ -344,6 +344,9 @@ void Cluster::InsertFrameDataIntoCluster(NodeData& InNodeData, FrameData const& 
 bool Cluster::LoadNodeData()
 {
     NodeFileNames.clear();
+    AllEntryNames.clear();
+    ClusterData.clear();
+
     GetNodeLogFilenames(NodeFileNames);
 
     if (NodeFileNames.empty())

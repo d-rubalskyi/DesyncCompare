@@ -9,10 +9,13 @@ void ComparisonResult::AddEntry(size_t FrameIdx, MsgType Type, EntryData InEntry
 {
     MsgEntry Entry = { InEntry, FrameIdx, Type };
     ComparisonMessages[FrameIdx].emplace_back(Entry);
+
+    EntryNames.emplace(InEntry.GetName());
+    CategoryNames.emplace(InEntry.GetCategory());
 }
 
 void ComparisonResult::FilterByEntryName(std::string const& EntryName, 
-    std::vector<MsgEntry>& OutFilteredMsgs)
+    std::vector<MsgEntry>& OutFilteredMsgs) const
 {
     OutFilteredMsgs.clear();
 
@@ -28,7 +31,7 @@ void ComparisonResult::FilterByEntryName(std::string const& EntryName,
     }
 }
 
-void ComparisonResult::FilterByMsgType(MsgType Type, std::vector<MsgEntry>& OutFilteredMsgs)
+void ComparisonResult::FilterByMsgType(MsgType Type, std::vector<MsgEntry>& OutFilteredMsgs) const
 {
     OutFilteredMsgs.clear();
 
@@ -36,7 +39,7 @@ void ComparisonResult::FilterByMsgType(MsgType Type, std::vector<MsgEntry>& OutF
     {
         for (auto const& Msg : MsgArray)
         {
-            if (Msg.Type == Type)
+            if ((Msg.Type == Type) || (Type == MsgType::All))
             {
                 OutFilteredMsgs.push_back(Msg);
             }
@@ -44,7 +47,8 @@ void ComparisonResult::FilterByMsgType(MsgType Type, std::vector<MsgEntry>& OutF
     }
 }
 
-void ComparisonResult::FilterUniqueMsgs(std::vector<MsgEntry> const& InMsgs, std::vector<MsgEntry>& OutMsgs)
+void ComparisonResult::FilterUniqueMsgs(std::vector<MsgEntry> const& InMsgs, 
+    std::vector<MsgEntry>& OutMsgs) const
 {
     // Key - Entry Name, Value - Unique messages for Entry
     std::map<std::string, std::set<std::string>> UniqueStrings;
@@ -90,4 +94,35 @@ void ComparisonResult::Print()
     std::cout << "  Identical Entries: " << IdenticalEntriesCount << std::endl;
     std::cout << "  Different Entries: " << DifferentEntriesCount << std::endl;
     std::cout << "  Absent Entries: " << AbsentEntriesCount << std::endl;
+}
+
+void ComparisonResult::Clear()
+{
+    TotalEntriesCount = 0;
+    IdenticalEntriesCount = 0;
+    DifferentEntriesCount = 0;
+    AbsentEntriesCount = 0;
+
+    EntryNames.clear();
+    ComparisonMessages.clear();
+}
+
+void ComparisonResult::GetEntryNames(std::vector<std::string>& OutEntryNames) const
+{
+    OutEntryNames.clear();
+
+    for (auto EntryName : EntryNames)
+    {
+        OutEntryNames.push_back(EntryName);
+    }
+}
+
+void ComparisonResult::GetCategoryNames(std::vector<std::string>& OutCategoryNames) const
+{
+    OutCategoryNames.clear();
+
+    for (auto CategoryName : CategoryNames)
+    {
+        OutCategoryNames.push_back(CategoryName);
+    }
 }
