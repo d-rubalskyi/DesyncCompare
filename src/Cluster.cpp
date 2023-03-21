@@ -2,21 +2,6 @@
 
 #include <sys/stat.h>
 
-bool ActorHasPassedTheFilter(size_t ActorHash, std::vector<size_t> const& ActorFilter)
-{
-    if (ActorFilter.empty())
-    {
-        return true;
-    }
-
-    if (std::find(ActorFilter.begin(), ActorFilter.end(), ActorHash) == ActorFilter.end())
-    {
-        return false;
-    }
-
-    return true;
-}
-
 void GetNodeLogFilenames(std::vector<std::string>& OutFilePathes)
 {
     OutFilePathes.clear();
@@ -110,7 +95,7 @@ int FindMinFrameCounterNodeIdx(std::vector<FrameData> const& FrameData)
     return NodeNumber;
 }
 
-void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult& Result, std::vector<size_t> const& ActorFilter)
+void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult& Result)
 {
     if (FrameData.empty())
     {
@@ -124,11 +109,6 @@ void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult&
 
     for (auto const& [ActorHash, LineDataArray] : FrameData[0].Data)
     {
-        if (!ActorHasPassedTheFilter(ActorHash, ActorFilter))
-        {
-            continue;
-        }
-
         if (FrameData[1].Data.find(ActorHash) == FrameData[1].Data.end())
         {
             OutputMsgs << RedColor << "[Desync]" << std::endl;
@@ -136,11 +116,6 @@ void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult&
 
             for (auto const& [ActorHash, LineDataArray] : FrameData[0].Data)
             {
-                if (!ActorHasPassedTheFilter(ActorHash, ActorFilter))
-                {
-                    continue;
-                }
-
                 Result.TotalEntriesCount += LineDataArray.size();
                 Result.AbsentEntriesCount += LineDataArray.size();
 
@@ -275,29 +250,12 @@ void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult&
 }
 
 void Cluster::ProcessDesyncFrameData(std::vector<FrameData> const& InFrameData,
-    std::vector<size_t> const& NodeIndices,
-    std::vector<size_t> const& ActorFilter, ComparisonResult& Result)
+    std::vector<size_t> const& NodeIndices, ComparisonResult& Result)
 {
     for (size_t i = 0; i < InFrameData.size(); i++)
     {
         int FrameNumber = InFrameData[i].FrameNumber;
         auto const& FrameData = InFrameData[i].Data;
-
-        bool bFilterHasPassed = ActorFilter.empty();
-
-        for (auto const& [ActorHash, EntryData] : FrameData)
-        {
-            if (ActorHasPassedTheFilter(ActorHash, ActorFilter))
-            {
-                bFilterHasPassed = true;
-                Result.TotalEntriesCount += EntryData.size();
-            }
-        }
-
-        if (!bFilterHasPassed)
-        {
-            return;
-        }
 
         size_t NodeNumber = NodeIndices[i];
 
@@ -306,11 +264,6 @@ void Cluster::ProcessDesyncFrameData(std::vector<FrameData> const& InFrameData,
 
         for (auto const& [ActorHash, EntryData] : FrameData)
         {
-            if (!ActorHasPassedTheFilter(ActorHash, ActorFilter))
-            {
-                continue;
-            }
-
             for (auto const& Entry : EntryData)
             {
                 std::stringstream EntryStream;
@@ -481,11 +434,11 @@ bool Cluster::CompareNodeData(ComparisonResult& Result)
 
         if (NumFramesFound != NumNodes)
         {
-            ProcessDesyncFrameData(FrameData, NodeIndices, ActorFilter, Result);
+            ProcessDesyncFrameData(FrameData, NodeIndices, Result);
             continue;
         }
 
-        Compare(FrameData, Result, ActorFilter);
+        Compare(FrameData, Result);
     }
 
     return true;

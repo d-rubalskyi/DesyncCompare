@@ -23,10 +23,9 @@ public:
 
 protected:
     void InsertFrameDataIntoCluster(NodeData& InNodeData, FrameData const& InFrameData);
-    void Compare(std::vector<FrameData> const& FrameData, ComparisonResult& Result, std::vector<size_t> const& ActorFilter);
+    void Compare(std::vector<FrameData> const& FrameData, ComparisonResult& Result);
     void ProcessDesyncFrameData(std::vector<FrameData> const& InFrameData,
-        std::vector<size_t> const& NodeIndices,
-        std::vector<size_t> const& ActorFilter, ComparisonResult& Result);
+        std::vector<size_t> const& NodeIndices, ComparisonResult& Result);
 
 protected:
     std::vector<NodeData> ClusterData;
