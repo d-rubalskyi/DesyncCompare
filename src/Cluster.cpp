@@ -438,7 +438,7 @@ bool Cluster::LoadNodeData()
 
 bool Cluster::CompareNodeData(ComparisonResult& Result)
 {
-    if (ClusterData.empty())
+    if (ClusterData.empty() || ClusterData[0].Data.empty())
     {
         return false;
     }

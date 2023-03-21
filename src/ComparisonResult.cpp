@@ -12,6 +12,19 @@ void ComparisonResult::AddEntry(size_t FrameIdx, MsgType Type, EntryData InEntry
 
     EntryNames.emplace(InEntry.GetName());
     CategoryNames.emplace(InEntry.GetCategory());
+
+    std::size_t EntryHash = std::hash<std::string>{}(InEntry.GetName());
+
+    if (SyncEntryState.find(EntryHash) == SyncEntryState.end())
+    {
+        SyncEntryState[EntryHash] = (Type == MsgType::Sync) ? true : false;
+    }
+    else
+    {
+        bool SyncState = SyncEntryState[EntryHash] && (Type == MsgType::Sync);
+        SyncEntryState[EntryHash] = SyncState;
+    }
+
 }
 
 void ComparisonResult::FilterByEntryName(std::string const& EntryName, 
@@ -107,13 +120,20 @@ void ComparisonResult::Clear()
     ComparisonMessages.clear();
 }
 
-void ComparisonResult::GetEntryNames(std::vector<std::string>& OutEntryNames) const
+void ComparisonResult::GetEntryData(std::map<std::string, bool>& OutEntryData) const
 {
-    OutEntryNames.clear();
+    OutEntryData.clear();
 
-    for (auto EntryName : EntryNames)
+    for (std::string const& EntryName : EntryNames)
     {
-        OutEntryNames.push_back(EntryName);
+        std::size_t EntryHash = std::hash<std::string>{}(EntryName);
+
+        auto const& SyncIt = SyncEntryState.find(EntryHash);
+
+        if (SyncIt != SyncEntryState.end())
+        {
+            OutEntryData[EntryName] = SyncEntryState.find(EntryHash)->second;
+        }
     }
 }
 
@@ -121,7 +141,7 @@ void ComparisonResult::GetCategoryNames(std::vector<std::string>& OutCategoryNam
 {
     OutCategoryNames.clear();
 
-    for (auto CategoryName : CategoryNames)
+    for (auto const& CategoryName : CategoryNames)
     {
         OutCategoryNames.push_back(CategoryName);
     }

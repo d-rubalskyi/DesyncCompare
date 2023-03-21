@@ -1,6 +1,8 @@
 #pragma once
 
 #include <map>
+#include <unordered_map>
+
 #include <vector>
 #include <set>
 #include <sstream>
@@ -35,7 +37,7 @@ public:
     void FilterByMsgType(MsgType Type, std::vector<MsgEntry>& OutFilteredMsgs) const;
     void FilterUniqueMsgs(std::vector<MsgEntry> const& InMsgs, std::vector<MsgEntry>& OutMsgs) const;
 
-    void GetEntryNames(std::vector<std::string>& OutEntryNames) const;
+    void GetEntryData(std::map<std::string, bool>& OutEntryData) const;
     void GetCategoryNames(std::vector<std::string>& OutCategoryNames) const;
 
 protected:
@@ -46,5 +48,7 @@ protected:
 
     std::set<std::string> EntryNames;
     std::set<std::string> CategoryNames;
+
+    std::unordered_map<size_t, bool> SyncEntryState;
     std::map<size_t, std::vector<MsgEntry>> ComparisonMessages;
 };
