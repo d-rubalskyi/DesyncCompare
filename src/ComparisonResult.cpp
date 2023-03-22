@@ -117,6 +117,8 @@ void ComparisonResult::Clear()
     AbsentEntriesCount = 0;
 
     EntryNames.clear();
+    CategoryNames.clear();
+    SyncEntryState.clear();
     ComparisonMessages.clear();
 }
 

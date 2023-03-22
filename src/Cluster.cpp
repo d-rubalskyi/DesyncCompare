@@ -17,25 +17,25 @@ bool ActorHasPassedTheFilter(size_t ActorHash, std::vector<size_t> const& ActorF
     return true;
 }
 
-void GetNodeLogFilenames(std::vector<std::string>& OutFilePathes)
+void GetNodeLogFilenames(std::string const& SearchFilePath, std::vector<std::string>& OutFilePathes)
 {
     OutFilePathes.clear();
 
     int NodeNameIndex = 0;
 
-    char NodeName[32] = { '\0' };
+    char NodeFilePath[1024] = { '\0' };
 
     while (true)
     {
-        std::snprintf(NodeName, sizeof(NodeName), "Node_%d.log", NodeNameIndex);
+        std::snprintf(NodeFilePath, sizeof(NodeFilePath), "%s\\Node_%d.log", SearchFilePath.c_str(), NodeNameIndex);
 
-        struct stat buffer;
-        if (stat(NodeName, &buffer) != 0)
+        struct stat Buffer;
+        if (stat(NodeFilePath, &Buffer) != 0)
         {
             break;
         }
 
-        OutFilePathes.push_back(NodeName);
+        OutFilePathes.push_back(NodeFilePath);
 
         NodeNameIndex++;
     }
@@ -341,13 +341,13 @@ void Cluster::InsertFrameDataIntoCluster(NodeData& InNodeData, FrameData const& 
     }
 }
 
-bool Cluster::LoadNodeData()
+bool Cluster::LoadNodeData(std::string const& SearchFilePath)
 {
     NodeFileNames.clear();
     AllEntryNames.clear();
     ClusterData.clear();
 
-    GetNodeLogFilenames(NodeFileNames);
+    GetNodeLogFilenames(SearchFilePath, NodeFileNames);
 
     if (NodeFileNames.empty())
     {

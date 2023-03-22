@@ -18,7 +18,7 @@ struct NodeData
 class Cluster
 {
 public:
-    bool LoadNodeData();
+    bool LoadNodeData(std::string const& SearchFilePath);
     bool CompareNodeData(ComparisonResult& TotalResult);
 
 protected:
