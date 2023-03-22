@@ -95,6 +95,19 @@ int FindMinFrameCounterNodeIdx(std::vector<FrameData> const& FrameData)
     return NodeNumber;
 }
 
+void AdaptFrameCounter(int& FrameNumber, int& NodeFrameCounter, int FrameCounter)
+{
+    static const int FrameClipRange = 1000;
+
+    FrameNumber += NodeFrameCounter;
+
+    if (FrameNumber < FrameCounter)
+    {
+        NodeFrameCounter += FrameClipRange;
+        FrameNumber += FrameClipRange;
+    }
+}
+
 void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult& Result)
 {
     if (FrameData.empty())
@@ -342,6 +355,13 @@ bool Cluster::LoadNodeData(std::string const& SearchFilePath)
         ClusterData[i].NodeNumber = static_cast<int>(i);
     }
 
+    std::vector<int> NodeFrameCounter(NumNodes);
+
+    for (size_t i = 0; i < NumNodes; i++)
+    {
+        NodeFrameCounter[i] = 0;
+    }
+
     while (!IsAllLogsFinished(LogReaders))
     {
         size_t ReadFromLogCounter = 0;
@@ -352,6 +372,7 @@ bool Cluster::LoadNodeData(std::string const& SearchFilePath)
             {
                 if (LogReaders[i].ReadNextFrame(FrameData[i], FrameCounter))
                 {
+                    AdaptFrameCounter(FrameData[i].FrameNumber, NodeFrameCounter[i], FrameCounter);
                     InsertFrameDataIntoCluster(ClusterData[i], FrameData[i]);
 
                     ReadFromLogCounter++;
@@ -364,6 +385,7 @@ bool Cluster::LoadNodeData(std::string const& SearchFilePath)
 
             if (LogReaders[NodeNumber].ReadNextFrame(FrameData[NodeNumber], FrameCounter))
             {
+                AdaptFrameCounter(FrameData[NodeNumber].FrameNumber, NodeFrameCounter[NodeNumber], FrameCounter);
                 InsertFrameDataIntoCluster(ClusterData[NodeNumber], FrameData[NodeNumber]);
 
                 ReadFromLogCounter++;
@@ -377,8 +399,6 @@ bool Cluster::LoadNodeData(std::string const& SearchFilePath)
 
         bool bIncrementFrameCounter = ReadFromLogCounter == NumNodes;
         bIncrementFrameCounter = bIncrementFrameCounter && IsSameFrameCounter(FrameData);
-
-        FrameCounter = std::max(FrameData[0].FrameNumber, FrameData[1].FrameNumber);
 
         if (bIncrementFrameCounter)
         {

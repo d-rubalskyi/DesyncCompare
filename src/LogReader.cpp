@@ -36,15 +36,6 @@ bool LogReader::ReadNextLine(EntryData& Data, int& OutFrame)
     return true;
 }
 
-int GetFrameNumber(int FrameNumber, int FrameCounter)
-{
-    static const int FrameOverflow = 1000;
-
-    // Account overflow
-    int k = int(FrameCounter / FrameOverflow) * FrameOverflow;
-    return k + FrameNumber;
-}
-
 bool LogReader::ReadNextFrame(FrameData& FrameData, int FrameCounter)
 {
     if (IsFinished())
@@ -69,7 +60,7 @@ bool LogReader::ReadNextFrame(FrameData& FrameData, int FrameCounter)
                 std::size_t ActorHash = std::hash<std::string>{}(PreviousEntryData.GetName());
 
                 FrameData.Data[ActorHash].push_back(PreviousEntryData);
-                FrameData.FrameNumber = GetFrameNumber(LastFrameNumber, FrameCounter);
+                FrameData.FrameNumber = LastFrameNumber;
 
                 bAddPreviousEntryData = false;
 
@@ -87,7 +78,7 @@ bool LogReader::ReadNextFrame(FrameData& FrameData, int FrameCounter)
             // Init FrameNumber
             if (FrameData.FrameNumber == -1)
             {
-                FrameData.FrameNumber = GetFrameNumber(OutFrame, FrameCounter);
+                FrameData.FrameNumber = OutFrame;
             }
 
             // Add to Entry to the FrameData
