@@ -5,7 +5,7 @@
 #include <iostream>
 #include <set>
 
-void ComparisonResult::AddEntry(size_t FrameIdx, MsgType Type, EntryData InEntry)
+void ComparisonResult::AddEntry(size_t FrameIdx, MsgType Type, EntryData const& InEntry)
 {
     MsgEntry Entry = { InEntry, FrameIdx, Type };
     ComparisonMessages[FrameIdx].emplace_back(Entry);
@@ -147,4 +147,9 @@ void ComparisonResult::GetCategoryNames(std::vector<std::string>& OutCategoryNam
     {
         OutCategoryNames.push_back(CategoryName);
     }
+}
+
+void ComparisonResult::GetSyncFramesState(std::vector<float>& OutSyncFrames) const
+{
+    OutSyncFrames = SyncFramesState;
 }

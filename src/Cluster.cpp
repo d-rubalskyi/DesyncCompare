@@ -120,45 +120,49 @@ void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult&
 
     std::stringstream OutputMsgs;
 
-    for (auto const& [ActorHash, LineDataArray] : FrameData[0].Data)
+    for (auto const& [EntryHash, LineDataArray] : FrameData[0].Data)
     {
-        if (FrameData[1].Data.find(ActorHash) == FrameData[1].Data.end())
+        if (FrameData[1].Data.find(EntryHash) == FrameData[1].Data.end())
         {
             OutputMsgs << RedColor << "[Desync]" << std::endl;
             OutputMsgs << RedColor << " -> " << WhiteColor << "Entries present only on Node[0]:" << std::endl;
 
-            for (auto const& [ActorHash, LineDataArray] : FrameData[0].Data)
+            for (auto const& [EntryHash, LineDataArray] : FrameData[0].Data)
             {
                 Result.TotalEntriesCount += LineDataArray.size();
                 Result.AbsentEntriesCount += LineDataArray.size();
 
-                for (auto const& LineData : LineDataArray)
+                for (auto const& EntryData : LineDataArray)
                 {
-                    std::string const& EntryName = LineData.GetName();
-                    std::string const& ActorInfo = LineData.GetInfo();
-                    std::string const& LogCategory = LineData.GetCategory();
+                    std::string const& EntryName = EntryData.GetName();
+                    std::string const& EntryInfo = EntryData.GetInfo();
+                    std::string const& LogCategory = EntryData.GetCategory();
 
-                    int LineNumber = LineData.GetLineNumber();
+                    int LineNumber = EntryData.GetLineNumber();
 
                     OutputMsgs << RedColor << " -> "
                         << YellowColor << "Frame[" << Frame << "]"
                         << CyanColor << "[" << LogCategory << "]"
                         << WhiteColor << ", Ln[" << LineNumber << "]"
                         << ", Entry: " << EntryName
-                        << ", Info: " << ActorInfo << std::endl;
+                        << ", Info: " << EntryInfo << std::endl;
+
+                    Result.AddEntry(Frame, MsgType::Desync, EntryData);
+
+                    SyncFramesState[Frame] = 0.5f;
                 }
             }
 
             continue;
         }
 
-        auto const& FoundIterator = FrameData[1].Data.find(ActorHash);
+        auto const& FoundIterator = FrameData[1].Data.find(EntryHash);
         auto const& LineDataArrayNode1 = FoundIterator->second;
 
         if (LineDataArray.size() != LineDataArrayNode1.size())
         {
             std::string const& EntryName = LineDataArray[0].GetName();
-            std::string const& ActorInfo = LineDataArray[0].GetInfo();
+            std::string const& EntryInfo = LineDataArray[0].GetInfo();
 
             int LineNumber = LineDataArray[0].GetLineNumber();
 
@@ -169,7 +173,7 @@ void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult&
             for (size_t i = 0; i < LineDataArray.size(); i++)
             {
                 std::string const& EntryName = LineDataArray[i].GetName();
-                std::string const& ActorInfo = LineDataArray[i].GetInfo();
+                std::string const& EntryInfo = LineDataArray[i].GetInfo();
 
                 int LineNumber = LineDataArray[i].GetLineNumber();
 
@@ -179,10 +183,12 @@ void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult&
                     << YellowColor << "Frame[" << Frame << "]"
                     << CyanColor << "[" << LineDataArray[i].GetCategory() << "]"
                     << WhiteColor << "Entry: " << EntryName
-                    << ", Info:" << ActorInfo
+                    << ", Info:" << EntryInfo
                     << std::endl;
 
                 Result.AddEntry(Frame, MsgType::Desync, LineDataArray[i]);
+                
+                SyncFramesState[Frame] = 0.5f;
 
                 OutputMsgs << EntryStream.rdbuf();
             }
@@ -192,7 +198,8 @@ void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult&
             for (size_t i = 0; i < LineDataArrayNode1.size(); i++)
             {
                 std::string const& EntryName = LineDataArrayNode1[i].GetName();
-                std::string const& ActorInfo = LineDataArrayNode1[i].GetInfo();
+                std::string const& EntryInfo = LineDataArrayNode1[i].GetInfo();
+
                 size_t LineIdx = LineDataArrayNode1[i].GetLineNumber();
 
                 std::stringstream EntryStream;
@@ -201,10 +208,12 @@ void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult&
                     << YellowColor << "Frame[" << Frame << "]"
                     << CyanColor << "[" << LineDataArrayNode1[i].GetCategory() << "]"
                     << WhiteColor << "Entry: " << EntryName
-                    << ", Info:" << ActorInfo
+                    << ", Info:" << EntryInfo
                     << std::endl;
 
                 Result.AddEntry(Frame, MsgType::Desync, LineDataArrayNode1[i]);
+
+                SyncFramesState[Frame] = 0.5f;
 
                 OutputMsgs << EntryStream.rdbuf();
             }
@@ -238,6 +247,8 @@ void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult&
                 Result.AddEntry(Frame, MsgType::Desync, LineDataArray[i]);
                 Result.AddEntry(Frame, MsgType::Desync, LineDataArrayNode1[i]);
 
+                SyncFramesState[Frame] = 0.5f;
+
                 OutputMsgs << EntryStream.rdbuf();
             }
             else
@@ -253,6 +264,8 @@ void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult&
                     << WhiteColor << "Entry: " << LineDataArray[i].GetName() << std::endl;
 
                 Result.AddEntry(Frame, MsgType::Sync, LineDataArray[i]);
+
+                SyncFramesState[Frame] = 1.0f;
 
                 OutputMsgs << EntryStream.rdbuf();
             }
@@ -285,6 +298,8 @@ void Cluster::ProcessDesyncFrameData(std::vector<FrameData> const& InFrameData,
                     << Entry << std::endl;
 
                 Result.AddEntry(FrameNumber, MsgType::Desync, Entry);
+                
+                SyncFramesState[FrameNumber] = 0.5f;
 
                 std::cout << EntryStream.rdbuf();
             }
@@ -298,7 +313,15 @@ void Cluster::InsertFrameDataIntoCluster(NodeData& InNodeData, FrameData const& 
 {
     InNodeData.Data.insert({ InFrameData.FrameNumber, InFrameData });
 
-    for (auto const& [ActorHash, LineDataArray] : InFrameData.Data)
+    MaxFrameNumber = std::max(InFrameData.FrameNumber, MaxFrameNumber);
+
+    if (SyncFramesState.size() < MaxFrameNumber)
+    {
+        SyncFramesState.resize(MaxFrameNumber);
+        std::fill(SyncFramesState.begin(), SyncFramesState.end(), 0.0f);
+    }
+
+    for (auto const& [EntryHash, LineDataArray] : InFrameData.Data)
     {
         for (auto const& Entry : LineDataArray)
         {
@@ -312,6 +335,10 @@ bool Cluster::LoadNodeData(std::string const& SearchFilePath)
     NodeFileNames.clear();
     AllEntryNames.clear();
     ClusterData.clear();
+
+    SyncFramesState.reserve(8096);
+
+    MaxFrameNumber = 0;
 
     GetNodeLogFilenames(SearchFilePath, NodeFileNames);
 
@@ -426,8 +453,6 @@ bool Cluster::CompareNodeData(ComparisonResult& Result)
     std::vector<FrameData> FrameData(NumNodes);
     std::vector<size_t> NodeIndices(NumNodes);
 
-    std::vector<size_t> ActorFilter;
-
     for (size_t FrameIdx = 0; FrameIdx < MaxFrameNumber; FrameIdx++)
     {
         FrameData.clear();
@@ -462,6 +487,8 @@ bool Cluster::CompareNodeData(ComparisonResult& Result)
 
         Compare(FrameData, Result);
     }
+
+    Result.SyncFramesState = SyncFramesState;
 
     return true;
 }

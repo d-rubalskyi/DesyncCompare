@@ -28,6 +28,10 @@ protected:
         std::vector<size_t> const& NodeIndices, ComparisonResult& Result);
 
 protected:
+    int MaxFrameNumber;
+
+    std::vector<float> SyncFramesState;
+
     std::vector<NodeData> ClusterData;
 
     std::vector<std::string> NodeFileNames;

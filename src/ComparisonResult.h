@@ -28,7 +28,7 @@ class ComparisonResult
     friend class Cluster;
 
 public:
-    void AddEntry(size_t FrameIdx, MsgType Type, EntryData Entry);
+    void AddEntry(size_t FrameIdx, MsgType Type, EntryData const& Entry);
 
     void Print();
     void Clear();
@@ -39,6 +39,7 @@ public:
 
     void GetEntryData(std::map<std::string, bool>& OutEntryData) const;
     void GetCategoryNames(std::vector<std::string>& OutCategoryNames) const;
+    void GetSyncFramesState(std::vector<float>& OutSyncFrames) const;
 
 protected:
     size_t TotalEntriesCount = 0;
@@ -48,6 +49,8 @@ protected:
 
     std::set<std::string> EntryNames;
     std::set<std::string> CategoryNames;
+
+    std::vector<float> SyncFramesState;
 
     std::unordered_map<size_t, bool> SyncEntryState;
     std::map<size_t, std::vector<MsgEntry>> ComparisonMessages;
