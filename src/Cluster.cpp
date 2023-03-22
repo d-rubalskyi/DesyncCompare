@@ -400,6 +400,8 @@ bool Cluster::LoadNodeData(std::string const& SearchFilePath)
         bool bIncrementFrameCounter = ReadFromLogCounter == NumNodes;
         bIncrementFrameCounter = bIncrementFrameCounter && IsSameFrameCounter(FrameData);
 
+        FrameCounter = std::min(FrameData[0].FrameNumber, FrameData[1].FrameNumber);
+
         if (bIncrementFrameCounter)
         {
             FrameCounter++;
