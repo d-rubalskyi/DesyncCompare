@@ -5,9 +5,9 @@
 #include <iostream>
 #include <set>
 
-void ComparisonResult::AddEntry(size_t FrameIdx, MsgType Type, EntryData const& InEntry)
+void ComparisonResult::AddEntry(size_t FrameIdx, std::vector<int> const& LineIdx, MsgType Type, EntryData const& InEntry)
 {
-    MsgEntry Entry = { InEntry, FrameIdx, Type };
+    MsgEntry Entry = { LineIdx, InEntry, FrameIdx, Type };
     ComparisonMessages[FrameIdx].emplace_back(Entry);
 
     EntryNames.emplace(InEntry.GetName());

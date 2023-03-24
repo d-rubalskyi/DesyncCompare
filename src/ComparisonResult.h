@@ -18,6 +18,7 @@ enum class MsgType
 
 struct MsgEntry
 {
+    std::vector<int> LineIndices;
     EntryData Entry;
     size_t FrameIdx;
     MsgType Type;
@@ -28,7 +29,7 @@ class ComparisonResult
     friend class Cluster;
 
 public:
-    void AddEntry(size_t FrameIdx, MsgType Type, EntryData const& Entry);
+    void AddEntry(size_t FrameIdx, std::vector<int> const& LineIdx, MsgType Type, EntryData const& Entry);
 
     void Print();
     void Clear();
