@@ -25,7 +25,7 @@ protected:
     void InsertFrameDataIntoCluster(NodeData& InNodeData, FrameData const& InFrameData);
     void Compare(std::vector<FrameData> const& FrameData, ComparisonResult& Result);
     void ProcessDesyncFrameData(std::vector<FrameData> const& InFrameData,
-        std::vector<size_t> const& NodeIndices, ComparisonResult& Result);
+        std::vector<size_t> const& NodeIndices, ComparisonResult& Result, size_t NumNodes);
 
 protected:
     int MaxFrameNumber;
