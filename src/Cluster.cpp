@@ -169,57 +169,44 @@ void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult&
 
             for (size_t i = 0; i < LineDataArray.size(); i++)
             {
+                auto it = std::find(LineDataArrayNode1.begin(), LineDataArrayNode1.end(), LineDataArray[i]);
+                
                 std::string const& EntryName = LineDataArray[i].GetName();
                 std::string const& EntryInfo = LineDataArray[i].GetInfo();
-
+                
                 int LineNumber = LineDataArray[i].GetLineNumber();
 
-                std::stringstream EntryStream;
+                Result.TotalEntriesCount++;
 
-                EntryStream << RedColor << "  -> "
-                    << YellowColor << "Frame[" << Frame << "]"
-                    << CyanColor << "[" << LineDataArray[i].GetCategory() << "]"
-                    << WhiteColor << "Entry: " << EntryName
-                    << ", Info:" << EntryInfo
-                    << std::endl;
+                if (it == LineDataArrayNode1.end())
+                {
+                    Result.DifferentEntriesCount++;
 
-                Result.AddEntry(Frame, { LineNumber, -1}, MsgType::Desync, LineDataArray[i]);
-                
-                SyncFramesState[Frame] = 0.5f;
+                    std::stringstream EntryStream;
 
-                OutputMsgs << EntryStream.rdbuf();
+                    EntryStream << RedColor << "  -> "
+                        << YellowColor << "Frame[" << Frame << "]"
+                        << CyanColor << "[" << LineDataArray[i].GetCategory() << "]"
+                        << WhiteColor << "Entry: " << EntryName
+                        << ", Info:" << EntryInfo
+                        << std::endl;
+
+                    Result.AddEntry(Frame, { LineNumber, -1 }, MsgType::Desync, LineDataArray[i]);
+                }
+                else
+                {
+                    Result.IdenticalEntriesCount++;
+
+                    std::stringstream EntryStream;
+
+                    EntryStream << GreenColor << "[Sync]"
+                        << YellowColor << "Frame[" << Frame << "]"
+                        << CyanColor << "[" << LineDataArray[i].GetCategory() << "]"
+                        << WhiteColor << "Entry: " << LineDataArray[i].GetName() << std::endl;
+
+                    Result.AddEntry(Frame, { LineNumber, LineNumber }, MsgType::Sync, LineDataArray[i]);
+                }
             }
-
-            OutputMsgs << RedColor << "  -> " << WhiteColor << "Entries for Node[1]:" << std::endl;
-
-            for (size_t i = 0; i < LineDataArrayNode1.size(); i++)
-            {
-                std::string const& EntryName = LineDataArrayNode1[i].GetName();
-                std::string const& EntryInfo = LineDataArrayNode1[i].GetInfo();
-
-                int LineNumber = LineDataArrayNode1[i].GetLineNumber();
-
-                std::stringstream EntryStream;
-
-                EntryStream << RedColor << "  -> "
-                    << YellowColor << "Frame[" << Frame << "]"
-                    << CyanColor << "[" << LineDataArrayNode1[i].GetCategory() << "]"
-                    << WhiteColor << "Entry: " << EntryName
-                    << ", Info:" << EntryInfo
-                    << std::endl;
-
-                Result.AddEntry(Frame, {-1, LineNumber }, MsgType::Desync, LineDataArrayNode1[i]);
-
-                SyncFramesState[Frame] = 0.5f;
-
-                OutputMsgs << EntryStream.rdbuf();
-            }
-
-            Result.DifferentEntriesCount += LineDataArray.size();
-            Result.DifferentEntriesCount += LineDataArrayNode1.size();
-
-            Result.TotalEntriesCount += LineDataArray.size();
-            Result.TotalEntriesCount += LineDataArrayNode1.size();
 
             continue;
         }

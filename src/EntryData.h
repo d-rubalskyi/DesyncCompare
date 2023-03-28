@@ -34,6 +34,12 @@ public:
 
         return os;
     }
+
+    friend bool operator == (EntryData const& Lhs, EntryData const& Rhs)
+    {
+        return (Lhs.EntryName == Rhs.EntryName) && (Lhs.EntryInfo == Rhs.EntryInfo)
+            && (Lhs.EntryCategory == Rhs.EntryCategory);
+    }
 protected:
     std::string EntryName;
     std::string EntryInfo;
