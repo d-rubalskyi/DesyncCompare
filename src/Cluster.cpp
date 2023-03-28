@@ -213,7 +213,9 @@ void Cluster::Compare(std::vector<FrameData> const& FrameData, ComparisonResult&
 
         for (size_t i = 0; i < LineDataArray.size(); i++)
         {
-            if (LineDataArray[i].GetInfo() != LineDataArrayNode1[i].GetInfo())
+            auto it = std::find(LineDataArrayNode1.begin(), LineDataArrayNode1.end(), LineDataArray[i]);
+
+            if (it == LineDataArrayNode1.end())
             {
                 Result.DifferentEntriesCount++;
 
