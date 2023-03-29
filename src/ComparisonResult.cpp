@@ -24,7 +24,6 @@ void ComparisonResult::AddEntry(size_t FrameIdx, std::vector<int> const& LineIdx
         bool SyncState = SyncEntryState[EntryHash] && (Type == MsgType::Sync);
         SyncEntryState[EntryHash] = SyncState;
     }
-
 }
 
 void ComparisonResult::FilterByEntryName(std::string const& EntryName, 
