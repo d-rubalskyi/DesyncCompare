@@ -31,7 +31,7 @@ class ComparisonResult
 public:
     void AddEntry(size_t FrameIdx, std::vector<int> const& LineIdx, MsgType Type, EntryData const& Entry);
 
-    void Print();
+    void Print(std::ostream& Stream) const;
     void Clear();
 
     void FilterByEntryName(std::string const& EntryName, std::vector<MsgEntry>& OutFilteredMsgs) const;

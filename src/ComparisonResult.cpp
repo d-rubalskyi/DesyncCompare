@@ -89,23 +89,16 @@ void ComparisonResult::FilterUniqueMsgs(std::vector<MsgEntry> const& InMsgs,
     }
 }
 
-void ComparisonResult::Print()
+void ComparisonResult::Print(std::ostream& Stream) const
 {
-    std::cout << std::endl << "Final Results: ";
+    Stream << std::endl << "Final Results: ";
 
-    if (TotalEntriesCount == IdenticalEntriesCount)
-    {
-        std::cout << GreenColor << "OK" << WhiteColor << std::endl;
-    }
-    else
-    {
-        std::cout << RedColor << "FAILED" << WhiteColor << std::endl;
-    }
+    Stream << ((TotalEntriesCount == IdenticalEntriesCount) ? "OK" : "FAILED") << std::endl;
 
-    std::cout << "  Total Entries: " << TotalEntriesCount << std::endl;
-    std::cout << "  Identical Entries: " << IdenticalEntriesCount << std::endl;
-    std::cout << "  Different Entries: " << DifferentEntriesCount << std::endl;
-    std::cout << "  Absent Entries: " << AbsentEntriesCount << std::endl;
+    Stream << "  Total Entries: " << TotalEntriesCount << std::endl;
+    Stream << "  Identical Entries: " << IdenticalEntriesCount << std::endl;
+    Stream << "  Different Entries: " << DifferentEntriesCount << std::endl;
+    Stream << "  Absent Entries: " << AbsentEntriesCount << std::endl;
 }
 
 void ComparisonResult::Clear()
