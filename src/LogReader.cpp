@@ -38,7 +38,7 @@ bool LogReader::ReadNextLine(EntryData& Data, int& OutFrame)
 
 bool LogReader::ReadNextFrame(FrameData& FrameData, int FrameCounter)
 {
-    if (IsFinished())
+    if (IsFileReadFinished())
     {
         return false;
     }

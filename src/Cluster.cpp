@@ -49,7 +49,7 @@ bool IsAllLogsFinished(std::vector<LogReader> const& Logs)
 
     for (auto const& Log : Logs)
     {
-        bAllLogsFinished = bAllLogsFinished && Log.IsFinished();
+        bAllLogsFinished = bAllLogsFinished && Log.IsFileReadFinished();
     }
 
     return bAllLogsFinished;

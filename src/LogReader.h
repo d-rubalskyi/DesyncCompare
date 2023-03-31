@@ -39,9 +39,7 @@ public:
     bool Open(std::string const& FileName);
     void Close();  
 
-    bool IsEndOfFile() const { return FileStream.eof(); }
-    bool IsOpen() const { return FileStream.is_open(); }
-    bool IsFinished() const { return !FileStream.is_open() || FileStream.eof(); }
+    bool IsFileReadFinished() const { return !FileStream.is_open() || FileStream.eof(); }
 
 protected:
     bool ReadNextLine(EntryData& Data, int& OutFrame);
